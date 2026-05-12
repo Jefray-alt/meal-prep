@@ -17,6 +17,9 @@ export default defineConfig([
       reactRefresh.configs.vite,
       perfectionist.configs['recommended-natural'],
     ],
+    rules: {
+      quotes: ['error', 'single'],
+    },
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
