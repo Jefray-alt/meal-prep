@@ -1,8 +1,10 @@
+import { Button } from '@heroui/react'
+
 function App() {
   return (
-    <>
-      Hello World
-    </>
+    <div>
+      <Button>Click me</Button>
+    </div>
   )
 }
 
