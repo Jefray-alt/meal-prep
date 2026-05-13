@@ -1,4 +1,5 @@
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 
 import type { Message } from '../../components/MessageList/MessageList.types'
 
@@ -8,6 +9,7 @@ import InputDock from '../../components/InputDock/InputDock'
 import MessageList from '../../components/MessageList/MessageList'
 
 export default function Home() {
+  const navigate = useNavigate()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -34,7 +36,7 @@ export default function Home() {
         ...prev,
         {
           content:
-            'I\'m crafting your personalized meal plan — AI responses are on their way. For now, try "Create yourself" to build your plan manually and get a feel for what mise can do.',
+            'I\'m crafting your personalized meal plan — AI responses are on their way. For now, try "Create by yourself" to build your plan manually and get a feel for what mise can do.',
           id: crypto.randomUUID(),
           role: 'assistant',
         },
@@ -94,6 +96,7 @@ export default function Home() {
         input={input}
         isLoading={isLoading}
         onChange={handleChange}
+        onCreateYourself={() => { void navigate('/create') }}
         onKeyDown={handleKeyDown}
         onSend={() => {
           sendMessage(input)
