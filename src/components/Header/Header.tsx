@@ -1,30 +1,46 @@
 import { Chip } from '@heroui/react'
+import { Link } from 'react-router'
 
 export default function Header() {
   return (
-    <header className="relative z-10 flex items-center justify-between border-b border-bark/50 px-6 py-4">
-      <div className="flex items-center gap-3">
+    <header className="relative z-10 flex items-center justify-between border-b border-bark/10 px-6 py-4">
+      <Link className="flex items-center gap-3" to="/">
         <div className="flex h-7 w-7 items-center justify-center rounded border border-ember/40 text-sm text-ember select-none">
           ◈
         </div>
         <span
-          className="text-2xl font-light tracking-[0.15em] text-cream"
+          className="text-2xl font-light tracking-[0.15em] text-bark"
           style={{ fontFamily: 'var(--font-display)' }}
         >
           mise
         </span>
         <Chip
-          className="rounded border border-ember/25 px-1.5 py-px text-[9px] tracking-[0.15em] uppercase text-ember/55"
+          className="rounded border border-ember/25 px-1.5 py-px text-[9px] tracking-[0.15em] uppercase text-ember/90"
           color="accent"
           size="sm"
           variant="tertiary"
         >
           beta
         </Chip>
+      </Link>
+
+      <div className="flex items-center gap-5">
+        <Link
+          className="group flex items-center gap-2 rounded-full border border-ember/30 bg-ember/6 px-4 py-1.5 text-[10px] tracking-[0.2em] text-bark/80 uppercase shadow-[0_0_0_0_rgba(232,115,58,0)] transition-all duration-200 hover:border-ember/55 hover:bg-ember/10 hover:text-bark hover:shadow-[0_0_18px_rgba(232,115,58,0.1)]"
+          to="/meal-preps"
+        >
+          <span
+            aria-hidden="true"
+            className="text-ember/85 transition-colors duration-200 group-hover:text-ember"
+          >
+            ◫
+          </span>
+          My Preps
+        </Link>
+        <p className="hidden text-[10px] tracking-[0.22em] text-smoke sm:block">
+          KITCHEN INTELLIGENCE
+        </p>
       </div>
-      <p className="hidden text-[10px] tracking-[0.22em] text-smoke/55 sm:block">
-        KITCHEN INTELLIGENCE
-      </p>
     </header>
   )
 }

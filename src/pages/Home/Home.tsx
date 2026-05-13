@@ -64,7 +64,7 @@ export default function Home() {
 
   return (
     <div
-      className="relative flex h-dvh flex-col overflow-hidden bg-char text-cream antialiased"
+      className="relative flex h-dvh flex-col overflow-hidden bg-char text-bark antialiased"
       style={{ fontFamily: 'var(--font-body)' }}
     >
       {/* Film grain */}
@@ -73,11 +73,11 @@ export default function Home() {
       {/* Ambient glows */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed bottom-0 left-0 h-[700px] w-[700px] -translate-x-1/2 translate-y-1/2 rounded-full bg-ember opacity-[0.055] blur-[160px]"
+        className="pointer-events-none fixed bottom-0 left-0 h-175 w-175 -translate-x-1/2 translate-y-1/2 rounded-full bg-ember opacity-[0.04] blur-[160px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed right-0 top-0 h-[500px] w-[500px] translate-x-1/2 -translate-y-1/2 rounded-full bg-moss opacity-[0.045] blur-[140px]"
+        className="pointer-events-none fixed right-0 top-0 h-125 w-125 translate-x-1/2 -translate-y-1/2 rounded-full bg-moss opacity-[0.03] blur-[140px]"
       />
 
       <Header />

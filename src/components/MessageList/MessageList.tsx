@@ -18,13 +18,13 @@ export default function MessageList({ bottomRef, isLoading, messages }: MessageL
           <Card
             className={`max-w-[80%] gap-0 rounded-2xl px-4 py-3 shadow-none ${
               msg.role === 'user'
-                ? 'rounded-tr-sm bg-ember/[0.13] ring-1 ring-ember/20'
-                : 'rounded-tl-sm bg-ash ring-1 ring-bark/80'
+                ? 'rounded-tr-sm bg-ember/10 ring-1 ring-ember/20'
+                : 'rounded-tl-sm bg-ash ring-1 ring-bark/10'
             }`}
             variant="transparent"
           >
             <Card.Content className="p-0">
-              <p className={`text-sm leading-relaxed ${msg.role === 'user' ? 'text-cream' : 'text-cream/85'}`}>
+              <p className={`text-sm leading-relaxed ${msg.role === 'user' ? 'text-bark' : 'text-bark'}`}>
                 {msg.content}
               </p>
             </Card.Content>
@@ -38,7 +38,7 @@ export default function MessageList({ bottomRef, isLoading, messages }: MessageL
             ◈
           </div>
           <Card
-            className="gap-0 rounded-2xl rounded-tl-sm bg-ash px-5 py-4 shadow-none ring-1 ring-bark/80"
+            className="gap-0 rounded-2xl rounded-tl-sm bg-ash px-5 py-4 shadow-none ring-1 ring-bark/10"
             variant="transparent"
           >
             <Card.Content className="p-0">

@@ -5,13 +5,16 @@
 
 /* ── Brand tokens ──────────────────────────────────────────── */
 @theme {
-  --color-ember:  #E8733A;
-  --color-moss:   #4A7C59;
-  --color-cream:  #F0E6D3;
-  --color-bark:   #2A2420;
-  --color-char:   #0C0A08;
-  --color-ash:    #171310;
-  --color-smoke:  #7A6A5C;
+  --color-ember:     #E8733A;
+  --color-moss:      #4A7C59;
+  --color-cream:     #F0E6D3;
+  --color-bark:      #2A2420;
+  --color-char:      #FFFFFF;
+  --color-ash:       #F3EDE3;
+  --color-smoke:     #7A6A5C;
+  --color-parchment: #FDFAF6;
+  --color-paper:     #FFFFFF;
+  --color-linen:     #EDE3D0;
 
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -23,37 +26,37 @@
  * so these values win over HeroUI's light and dark theme defaults.
  */
 :root {
-  --background:                  var(--color-char);
-  --foreground:                  var(--color-cream);
+  --background:                  var(--color-paper);
+  --foreground:                  var(--color-bark);
 
-  --surface:                     var(--color-ash);
-  --surface-foreground:          var(--color-cream);
-  --surface-secondary:           color-mix(in oklab, var(--color-ash) 60%, var(--color-bark));
-  --surface-secondary-foreground: var(--color-cream);
-  --surface-tertiary:            var(--color-bark);
-  --surface-tertiary-foreground: var(--color-cream);
+  --surface:                     var(--color-paper);
+  --surface-foreground:          var(--color-bark);
+  --surface-secondary:           var(--color-cream);
+  --surface-secondary-foreground: var(--color-bark);
+  --surface-tertiary:            var(--color-linen);
+  --surface-tertiary-foreground: var(--color-bark);
 
-  --overlay:                     var(--color-bark);
-  --overlay-foreground:          var(--color-cream);
+  --overlay:                     var(--color-paper);
+  --overlay-foreground:          var(--color-bark);
 
-  --default:                     var(--color-ash);
-  --default-foreground:          var(--color-cream);
+  --default:                     var(--color-cream);
+  --default-foreground:          var(--color-bark);
 
   --accent:                      var(--color-ember);
-  --accent-foreground:           var(--color-cream);
+  --accent-foreground:           var(--color-paper);
 
   --success:                     var(--color-moss);
-  --success-foreground:          var(--color-cream);
+  --success-foreground:          var(--color-paper);
 
   --muted:                       var(--color-smoke);
 
-  --border:                      var(--color-bark);
-  --separator:                   var(--color-bark);
+  --border:                      #DDD4C4;
+  --separator:                   #DDD4C4;
 
-  --field-background:            var(--color-ash);
-  --field-foreground:            var(--color-cream);
+  --field-background:            var(--color-paper);
+  --field-foreground:            var(--color-bark);
   --field-placeholder:           var(--color-smoke);
-  --field-border:                var(--color-bark);
+  --field-border:                #DDD4C4;
 
   --focus:                       var(--color-ember);
 }
@@ -79,7 +82,7 @@
   height: 200%;
   pointer-events: none;
   z-index: 50;
-  opacity: 0.025;
+  opacity: 0.05;
   animation: grain-shift 0.5s steps(1) infinite;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
@@ -103,10 +106,11 @@
 
 .loading-dot {
   background-color: var(--color-smoke);
+  opacity: 0.6;
   animation: bounce-dot 1.2s ease-in-out infinite;
 }
 
 /* ── Input glow on focus-within ────────────────────────────── */
 .input-wrap:focus-within {
-  box-shadow: 0 0 0 1px rgba(232, 115, 58, 0.08), 0 4px 24px rgba(232, 115, 58, 0.04);
+  box-shadow: 0 0 0 1px rgba(232, 115, 58, 0.15), 0 4px 24px rgba(232, 115, 58, 0.07);
 }

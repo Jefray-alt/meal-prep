@@ -28,11 +28,11 @@ const SUGGESTED_PROMPTS = [
 export default function EmptyState({ onSelectPrompt, textareaRef }: EmptyStateProps) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-6 py-16">
-      <p className="mb-3 text-[10px] tracking-[0.35em] text-ember/55 uppercase">
+      <p className="mb-3 text-[10px] tracking-[0.35em] text-ember uppercase">
         mise en place
       </p>
       <h1
-        className="text-center text-5xl font-light italic leading-[1.15] text-cream/90 sm:text-6xl"
+        className="text-center text-5xl font-light italic leading-[1.15] text-bark sm:text-6xl"
         style={{ fontFamily: 'var(--font-display)' }}
       >
         What shall we<br />prep this week?
@@ -45,7 +45,7 @@ export default function EmptyState({ onSelectPrompt, textareaRef }: EmptyStatePr
       <div className="mt-10 grid w-full max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
         {SUGGESTED_PROMPTS.map(({ icon, label, text }) => (
           <Button
-            className="group h-auto w-full items-start justify-start gap-3 whitespace-normal rounded-xl border border-bark/70 bg-ash/50 px-4 py-4 text-left hover:border-ember/25 hover:bg-ash"
+            className="group h-auto w-full items-start justify-start gap-3 whitespace-normal rounded-xl border border-bark/12 bg-ash/50 px-4 py-4 text-left hover:border-ember/25 hover:bg-ash/80"
             key={label}
             onPress={() => {
               onSelectPrompt(text)
@@ -55,10 +55,10 @@ export default function EmptyState({ onSelectPrompt, textareaRef }: EmptyStatePr
           >
             <span className="mt-0.5 shrink-0 text-base leading-none">{icon}</span>
             <div className="min-w-0 text-left">
-              <p className="text-sm font-medium text-cream/70 transition-colors group-hover:text-cream">
+              <p className="text-sm font-medium text-bark/90 transition-colors group-hover:text-bark">
                 {label}
               </p>
-              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-smoke/65">
+              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-smoke">
                 {text}
               </p>
             </div>
