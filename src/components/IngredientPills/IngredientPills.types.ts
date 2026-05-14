@@ -4,6 +4,7 @@ export interface Ingredient {
 }
 
 export interface IngredientPillsProps {
+  error?: string
   onChange: (value: Ingredient[]) => void
   value: Ingredient[]
 }

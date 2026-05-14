@@ -5,7 +5,6 @@ import { afterEach } from 'vitest'
 afterEach(cleanup)
 
 Object.defineProperty(window, 'matchMedia', {
-  writable: true,
   value: (query: string) => ({
     addEventListener: () => {},
     addListener: () => {},
@@ -16,6 +15,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: () => {},
     removeListener: () => {},
   }),
+  writable: true,
 })
 
 global.ResizeObserver = class ResizeObserver {

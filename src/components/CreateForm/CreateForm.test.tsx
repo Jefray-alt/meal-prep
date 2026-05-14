@@ -1,9 +1,10 @@
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { CreateFormData } from './CreateForm.types'
+
 import { render, screen } from '../../test-utils'
 import CreateForm from './CreateForm'
-import type { CreateFormData } from './CreateForm.types'
 
 const defaultData: CreateFormData = {
   carbs: '',

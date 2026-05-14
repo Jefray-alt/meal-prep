@@ -1,9 +1,10 @@
 import { createRef } from 'react'
 import { describe, expect, it } from 'vitest'
 
+import type { Message } from './MessageList.types'
+
 import { render, screen } from '../../test-utils'
 import MessageList from './MessageList'
-import type { Message } from './MessageList.types'
 
 describe('MessageList', () => {
   it('renders user messages', () => {

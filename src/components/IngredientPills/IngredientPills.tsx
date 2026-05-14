@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import type { IngredientPillsProps } from './IngredientPills.types'
 
-export default function IngredientPills({ onChange, value }: IngredientPillsProps) {
+export default function IngredientPills({ error, onChange, value }: IngredientPillsProps) {
   const [draftName, setDraftName] = useState('')
   const [draftQty, setDraftQty] = useState('')
 
@@ -22,6 +22,7 @@ export default function IngredientPills({ onChange, value }: IngredientPillsProp
   return (
     <div className="flex flex-col gap-3">
       <span className="text-[10px] tracking-[0.25em] text-smoke/60 uppercase">Ingredients</span>
+      {error && <p className="text-xs text-red-400">{error}</p>}
 
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">

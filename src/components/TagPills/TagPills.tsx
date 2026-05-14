@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import type { TagPillsProps } from './TagPills.types'
 
-export default function TagPills({ onChange, value }: TagPillsProps) {
+export default function TagPills({ error, onChange, value }: TagPillsProps) {
   const [draft, setDraft] = useState('')
 
   const add = () => {
@@ -20,6 +20,7 @@ export default function TagPills({ onChange, value }: TagPillsProps) {
   return (
     <div className="flex flex-col gap-3">
       <span className="text-[10px] tracking-[0.25em] text-smoke/60 uppercase">Tags</span>
+      {error && <p className="text-xs text-red-400">{error}</p>}
 
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">

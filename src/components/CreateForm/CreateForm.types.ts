@@ -12,6 +12,8 @@ export interface CreateFormData {
 
 export interface CreateFormProps {
   data: CreateFormData
+  errors: Partial<Record<keyof CreateFormData, string>>
+  onBlur: (field: keyof CreateFormData) => void
   onCancel: () => void
   onChange: (patch: Partial<CreateFormData>) => void
   onSave: () => void

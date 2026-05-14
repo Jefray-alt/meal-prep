@@ -1,4 +1,4 @@
-import { Button, Input, Label, TextArea, TextField } from '@heroui/react'
+import { Button, FieldError, Input, Label, TextArea, TextField } from '@heroui/react'
 
 import type { CreateFormProps } from './CreateForm.types'
 
@@ -7,13 +7,20 @@ import TagPills from '../TagPills/TagPills'
 
 const labelCls = 'mb-1 text-[10px] tracking-[0.2em] text-smoke/60 uppercase'
 
-export default function CreateForm({ data, onCancel, onChange, onSave }: CreateFormProps) {
+export default function CreateForm({ data, errors, onBlur, onCancel, onChange, onSave }: CreateFormProps) {
   return (
     <div className="mt-10 flex flex-col gap-6 rounded-2xl border border-bark/10 bg-char/92 p-8 shadow-sm backdrop-blur-sm">
       {/* Title */}
-      <TextField fullWidth onChange={(v) => { onChange({ title: v }) }} value={data.title}>
+      <TextField
+        fullWidth
+        isInvalid={!!errors.title}
+        onBlur={() => { onBlur('title') }}
+        onChange={(v) => { onChange({ title: v }) }}
+        value={data.title}
+      >
         <Label className={labelCls}>Title</Label>
         <Input fullWidth placeholder="e.g. High-protein Sunday batch" />
+        <FieldError className="mt-1 text-xs">{errors.title}</FieldError>
       </TextField>
 
       {/* Macros */}
@@ -33,22 +40,36 @@ export default function CreateForm({ data, onCancel, onChange, onSave }: CreateF
       </div>
 
       {/* Instructions */}
-      <TextField fullWidth onChange={(v) => { onChange({ instructions: v }) }} value={data.instructions}>
+      <TextField
+        fullWidth
+        isInvalid={!!errors.instructions}
+        onBlur={() => { onBlur('instructions') }}
+        onChange={(v) => { onChange({ instructions: v }) }}
+        value={data.instructions}
+      >
         <Label className={labelCls}>Instructions</Label>
         <TextArea
           className="max-h-48 min-h-28 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed text-bark shadow-none outline-none placeholder:text-smoke/50 focus:ring-0 focus:shadow-none data-[focused=true]:ring-0 data-[focused=true]:shadow-none"
           placeholder="Describe preparation steps, cooking times, storage tips…"
         />
+        <div className="flex items-start justify-between gap-2">
+          <FieldError className="text-xs">{errors.instructions}</FieldError>
+          <span className={`ml-auto shrink-0 text-xs ${data.instructions.length > 1000 ? 'text-red-400' : 'text-smoke/40'}`}>
+            {data.instructions.length} / 1000
+          </span>
+        </div>
       </TextField>
 
       {/* Ingredients */}
       <IngredientPills
+        error={errors.ingredients}
         onChange={(ingredients) => { onChange({ ingredients }) }}
         value={data.ingredients}
       />
 
       {/* Tags */}
       <TagPills
+        error={errors.tags}
         onChange={(tags) => { onChange({ tags }) }}
         value={data.tags}
       />

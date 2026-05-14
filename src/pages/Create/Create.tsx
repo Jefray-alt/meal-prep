@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import type { CreateFormData } from '../../components/CreateForm/CreateForm.types'
@@ -16,16 +16,43 @@ const INITIAL_DATA: CreateFormData = {
   title: '',
 }
 
+const VALIDATABLE_FIELDS: (keyof CreateFormData)[] = ['ingredients', 'instructions', 'tags', 'title']
+
 export default function Create() {
   const navigate = useNavigate()
   const [data, setData] = useState<CreateFormData>(INITIAL_DATA)
+  const [touched, setTouched] = useState<Set<keyof CreateFormData>>(new Set())
+
+  const errors = useMemo(() => validate(data, touched), [data, touched])
 
   const handleChange = (patch: Partial<CreateFormData>) => {
     setData((prev) => ({ ...prev, ...patch }))
+
+    if ('ingredients' in patch && patch.ingredients?.length === 0) {
+      setTouched((prev) => new Set([...prev, 'ingredients']))
+    }
+    if ('tags' in patch && patch.tags?.length === 0) {
+      setTouched((prev) => new Set([...prev, 'tags']))
+    }
+  }
+
+  const handleBlur = (field: keyof CreateFormData) => {
+    setTouched((prev) => new Set([...prev, field]))
   }
 
   const handleSave = () => {
-    console.log(data)
+    const allTouched = new Set([...touched, ...VALIDATABLE_FIELDS])
+    setTouched(allTouched)
+
+    if (Object.keys(validate(data, allTouched)).length > 0) return
+
+    const normalized = {
+      ...data,
+      carbs: data.carbs.trim() || '0',
+      fat: data.fat.trim() || '0',
+      protein: data.protein.trim() || '0',
+    }
+    console.log(normalized)
     void navigate('/meal-preps')
   }
 
@@ -60,6 +87,8 @@ export default function Create() {
 
           <CreateForm
             data={data}
+            errors={errors}
+            onBlur={handleBlur}
             onCancel={() => { void navigate('/') }}
             onChange={handleChange}
             onSave={handleSave}
@@ -68,4 +97,31 @@ export default function Create() {
       </main>
     </div>
   )
+}
+
+function validate(
+  data: CreateFormData,
+  touched: Set<keyof CreateFormData>,
+): Partial<Record<keyof CreateFormData, string>> {
+  const errors: Partial<Record<keyof CreateFormData, string>> = {}
+
+  if (touched.has('title')) {
+    if (!data.title.trim()) errors.title = 'Title is required'
+    else if (data.title.length > 100) errors.title = 'Title must be 100 characters or less'
+  }
+
+  if (touched.has('instructions')) {
+    if (!data.instructions.trim()) errors.instructions = 'Instructions are required'
+    else if (data.instructions.length > 1000) errors.instructions = 'Instructions must be 1000 characters or less'
+  }
+
+  if (touched.has('ingredients') && data.ingredients.length === 0) {
+    errors.ingredients = 'Add at least one ingredient'
+  }
+
+  if (touched.has('tags') && data.tags.length === 0) {
+    errors.tags = 'Add at least one tag'
+  }
+
+  return errors
 }

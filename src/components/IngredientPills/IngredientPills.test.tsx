@@ -1,9 +1,10 @@
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { Ingredient } from './IngredientPills.types'
+
 import { render, screen } from '../../test-utils'
 import IngredientPills from './IngredientPills'
-import type { Ingredient } from './IngredientPills.types'
 
 describe('IngredientPills', () => {
   it('renders the Ingredients label', () => {
