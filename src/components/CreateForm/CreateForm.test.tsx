@@ -18,12 +18,12 @@ const defaultData: CreateFormData = {
 
 describe('CreateForm', () => {
   it('renders the Title field', () => {
-    render(<CreateForm data={defaultData} onCancel={vi.fn()} onChange={vi.fn()} onSave={vi.fn()} />)
+    render(<CreateForm data={defaultData} errors={{}} onBlur={vi.fn()} onCancel={vi.fn()} onChange={vi.fn()} onSave={vi.fn()} />)
     expect(screen.getByText('Title')).toBeInTheDocument()
   })
 
   it('renders all three macro fields', () => {
-    render(<CreateForm data={defaultData} onCancel={vi.fn()} onChange={vi.fn()} onSave={vi.fn()} />)
+    render(<CreateForm data={defaultData} errors={{}} onBlur={vi.fn()} onCancel={vi.fn()} onChange={vi.fn()} onSave={vi.fn()} />)
     expect(screen.getByText('Carbs (g)')).toBeInTheDocument()
     expect(screen.getByText('Protein (g)')).toBeInTheDocument()
     expect(screen.getByText('Fat (g)')).toBeInTheDocument()
@@ -32,7 +32,7 @@ describe('CreateForm', () => {
   it('calls onSave when Save Meal Prep is clicked', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
-    render(<CreateForm data={defaultData} onCancel={vi.fn()} onChange={vi.fn()} onSave={onSave} />)
+    render(<CreateForm data={defaultData} errors={{}} onBlur={vi.fn()} onCancel={vi.fn()} onChange={vi.fn()} onSave={onSave} />)
     await user.click(screen.getByRole('button', { name: 'Save Meal Prep' }))
     expect(onSave).toHaveBeenCalledOnce()
   })
@@ -40,7 +40,7 @@ describe('CreateForm', () => {
   it('calls onCancel when Cancel is clicked', async () => {
     const user = userEvent.setup()
     const onCancel = vi.fn()
-    render(<CreateForm data={defaultData} onCancel={onCancel} onChange={vi.fn()} onSave={vi.fn()} />)
+    render(<CreateForm data={defaultData} errors={{}} onBlur={vi.fn()} onCancel={onCancel} onChange={vi.fn()} onSave={vi.fn()} />)
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(onCancel).toHaveBeenCalledOnce()
   })
