@@ -1,11 +1,11 @@
 import { Button, FieldError, Input, Label, TextField } from '@heroui/react'
 import { Link } from 'react-router'
 
-import type { RegisterFormProps } from './RegisterForm.types'
+import type { LoginFormProps } from './LoginForm.types'
 
 const labelCls = 'mb-1 text-[10px] tracking-[0.2em] text-smoke/60 uppercase'
 
-export default function RegisterForm({
+export default function LoginForm({
   banner,
   data,
   errors,
@@ -13,8 +13,10 @@ export default function RegisterForm({
   onBannerDismiss,
   onBlur,
   onChange,
+  onShowPasswordToggle,
   onSubmit,
-}: RegisterFormProps) {
+  showPassword,
+}: LoginFormProps) {
   return (
     <form
       className="mt-10 flex flex-col gap-6 rounded-2xl border border-bark/10 bg-char/92 p-8 shadow-sm backdrop-blur-sm"
@@ -27,18 +29,11 @@ export default function RegisterForm({
           role="alert"
         >
           <span>
-            {banner.type === 'conflict' ? (
-              <>
-                This email is already in use.{' '}
-                <Link className="text-ember underline" to="/login">
-                  Log in
-                </Link>
-              </>
-            ) : banner.type === 'rate-limit' ? (
-              'Too many attempts. Please wait a moment and try again.'
-            ) : (
-              'Something went wrong. Please try again.'
-            )}
+            {banner.type === 'invalid-credentials'
+              ? 'Invalid email or password.'
+              : banner.type === 'rate-limit'
+                ? 'Too many attempts. Please wait a moment and try again.'
+                : 'Something went wrong. Please try again.'}
           </span>
           <Button
             aria-label="Dismiss"
@@ -51,30 +46,6 @@ export default function RegisterForm({
           </Button>
         </div>
       )}
-
-      <div className="grid grid-cols-2 gap-4">
-        <TextField
-          isInvalid={!!errors.firstName}
-          onBlur={() => { onBlur('firstName') }}
-          onChange={(v) => { onChange({ firstName: v }) }}
-          value={data.firstName}
-        >
-          <Label className={labelCls}>First Name</Label>
-          <Input placeholder="Jane" />
-          <FieldError className="mt-1 text-xs">{errors.firstName}</FieldError>
-        </TextField>
-
-        <TextField
-          isInvalid={!!errors.lastName}
-          onBlur={() => { onBlur('lastName') }}
-          onChange={(v) => { onChange({ lastName: v }) }}
-          value={data.lastName}
-        >
-          <Label className={labelCls}>Last Name</Label>
-          <Input placeholder="Doe" />
-          <FieldError className="mt-1 text-xs">{errors.lastName}</FieldError>
-        </TextField>
-      </div>
 
       <TextField
         fullWidth
@@ -96,20 +67,19 @@ export default function RegisterForm({
         value={data.password}
       >
         <Label className={labelCls}>Password</Label>
-        <Input fullWidth placeholder="••••••••" type="password" />
+        <div className="relative">
+          <Input fullWidth placeholder="••••••••" type={showPassword ? 'text' : 'password'} />
+          <Button
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            className="absolute right-3 top-1/2 h-auto min-w-0 -translate-y-1/2 p-0 text-xs text-smoke/60 data-hover:text-bark"
+            onPress={onShowPasswordToggle}
+            size="sm"
+            variant="ghost"
+          >
+            {showPassword ? 'Hide' : 'Show'}
+          </Button>
+        </div>
         <FieldError className="mt-1 text-xs">{errors.password}</FieldError>
-      </TextField>
-
-      <TextField
-        fullWidth
-        isInvalid={!!errors.confirmPassword}
-        onBlur={() => { onBlur('confirmPassword') }}
-        onChange={(v) => { onChange({ confirmPassword: v }) }}
-        value={data.confirmPassword}
-      >
-        <Label className={labelCls}>Confirm Password</Label>
-        <Input fullWidth placeholder="••••••••" type="password" />
-        <FieldError className="mt-1 text-xs">{errors.confirmPassword}</FieldError>
       </TextField>
 
       <div className="border-t border-bark/8 pt-6">
@@ -119,9 +89,16 @@ export default function RegisterForm({
           type="submit"
           variant="primary"
         >
-          {isSubmitting ? 'Creating account…' : 'Create account'}
+          {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
       </div>
+
+      <p className="text-center text-sm text-smoke/60">
+        Don&apos;t have an account yet?{' '}
+        <Link className="text-ember underline" to="/register">
+          Sign up
+        </Link>
+      </p>
     </form>
   )
 }
