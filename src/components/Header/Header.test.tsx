@@ -1,7 +1,8 @@
 import { fireEvent, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { logout } from '../../lib/apiFetch'
+import { TOKEN_KEY } from '../../lib/constants'
 import { render, screen } from '../../test-utils'
 import Header from './Header'
 
@@ -27,23 +28,64 @@ describe('Header', () => {
     expect(screen.getByText('beta', { selector: '[data-slot="chip-label"]' })).toBeInTheDocument()
   })
 
-  it('renders the My Preps navigation link', () => {
+  it('does not render KITCHEN INTELLIGENCE text', () => {
     render(<Header />)
-    expect(screen.getByRole('link', { name: /My Preps/ })).toBeInTheDocument()
+    expect(screen.queryByText(/kitchen intelligence/i)).not.toBeInTheDocument()
   })
 
-  it('renders the sign out button', () => {
-    render(<Header />)
-    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument()
+  describe('guest state (no token)', () => {
+    it('renders the Login button', () => {
+      render(<Header />)
+      expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument()
+    })
+
+    it('does not render the My Preps link', () => {
+      render(<Header />)
+      expect(screen.queryByRole('link', { name: /my preps/i })).not.toBeInTheDocument()
+    })
+
+    it('does not render the account menu', () => {
+      render(<Header />)
+      expect(screen.queryByRole('button', { name: /account menu/i })).not.toBeInTheDocument()
+    })
   })
 
-  it('calls logout and navigates to /login when sign out is pressed', async () => {
-    vi.mocked(logout).mockResolvedValueOnce(undefined)
-    render(<Header />)
-    fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
-    await waitFor(() => {
-      expect(logout).toHaveBeenCalledOnce()
-      expect(mockNavigate).toHaveBeenCalledWith('/login')
+  describe('authenticated state (token present)', () => {
+    beforeEach(() => {
+      localStorage.setItem(TOKEN_KEY, 'mock-token')
+    })
+
+    afterEach(() => {
+      localStorage.removeItem(TOKEN_KEY)
+    })
+
+    it('renders the My Preps link', () => {
+      render(<Header />)
+      expect(screen.getByRole('link', { name: /my preps/i })).toBeInTheDocument()
+    })
+
+    it('renders the account menu button', () => {
+      render(<Header />)
+      expect(screen.getByRole('button', { name: /account menu/i })).toBeInTheDocument()
+    })
+
+    it('does not render the Login button', () => {
+      render(<Header />)
+      expect(screen.queryByRole('link', { name: /login/i })).not.toBeInTheDocument()
+    })
+
+    it('calls logout and navigates to /login after confirming logout', async () => {
+      vi.mocked(logout).mockResolvedValueOnce(undefined)
+      render(<Header />)
+
+      fireEvent.click(screen.getByRole('button', { name: /account menu/i }))
+      fireEvent.click(screen.getByRole('menuitem', { name: /logout/i }))
+      fireEvent.click(await screen.findByRole('button', { name: /confirm/i }))
+
+      await waitFor(() => {
+        expect(logout).toHaveBeenCalledOnce()
+        expect(mockNavigate).toHaveBeenCalledWith('/login')
+      })
     })
   })
 })
