@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router'
 import type { LoginFormData } from '../../components/LoginForm/LoginForm.types'
 
 import LoginForm from '../../components/LoginForm/LoginForm'
+import { apiFetch } from '../../lib/apiFetch'
+import { TOKEN_KEY } from '../../lib/constants'
 
 const ALL_FIELDS: (keyof LoginFormData)[] = ['email', 'password']
 
@@ -39,15 +41,16 @@ export default function Login() {
     setBanner(null)
 
     try {
-      const res = await fetch('/auth/login', {
+      const res = await apiFetch('/auth/login', {
         body: JSON.stringify({ email: data.email, password: data.password }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
+        skipRefresh: true,
       })
 
       if (res.status === 200) {
         const body = (await res.json()) as { accessToken: string }
-        localStorage.setItem('mise_access_token', body.accessToken)
+        localStorage.setItem(TOKEN_KEY, body.accessToken)
         void navigate('/')
       } else if (res.status === 401) {
         setBanner({ type: 'invalid-credentials' })

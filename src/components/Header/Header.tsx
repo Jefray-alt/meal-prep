@@ -1,7 +1,16 @@
-import { Chip } from '@heroui/react'
-import { Link } from 'react-router'
+import { Button, Chip } from '@heroui/react'
+import { Link, useNavigate } from 'react-router'
+
+import { logout } from '../../lib/apiFetch'
 
 export default function Header() {
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    void navigate('/login')
+  }
+
   return (
     <header className="relative z-10 flex items-center justify-between border-b border-bark/10 px-6 py-4">
       <Link className="flex items-center gap-3" to="/">
@@ -37,6 +46,14 @@ export default function Header() {
           </span>
           My Preps
         </Link>
+        <Button
+          className="rounded-full border border-smoke/20 px-4 py-1.5 text-[10px] tracking-[0.2em] text-smoke/60 uppercase transition-all duration-200 hover:border-smoke/40 hover:text-smoke/90"
+          onPress={() => { void handleLogout() }}
+          size="sm"
+          variant="ghost"
+        >
+          Sign out
+        </Button>
         <p className="hidden text-[10px] tracking-[0.22em] text-smoke sm:block">
           KITCHEN INTELLIGENCE
         </p>

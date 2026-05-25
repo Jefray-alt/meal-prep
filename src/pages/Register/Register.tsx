@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router'
 import type { RegisterFormData } from '../../components/RegisterForm/RegisterForm.types'
 
 import RegisterForm from '../../components/RegisterForm/RegisterForm'
+import { apiFetch } from '../../lib/apiFetch'
+import { TOKEN_KEY } from '../../lib/constants'
 
 const ALL_FIELDS: (keyof RegisterFormData)[] = [
   'confirmPassword',
@@ -47,7 +49,7 @@ export default function Register() {
     setBanner(null)
 
     try {
-      const res = await fetch('/auth/register', {
+      const res = await apiFetch('/auth/register', {
         body: JSON.stringify({
           email: data.email,
           firstName: data.firstName,
@@ -56,11 +58,12 @@ export default function Register() {
         }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
+        skipRefresh: true,
       })
 
       if (res.status === 201) {
         const body = (await res.json()) as { accessToken: string }
-        localStorage.setItem('mise_access_token', body.accessToken)
+        localStorage.setItem(TOKEN_KEY, body.accessToken)
         void navigate('/')
       } else if (res.status === 409) {
         setBanner({ type: 'conflict' })
