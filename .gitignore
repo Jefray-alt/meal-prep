@@ -1,4 +1,7 @@
 .env
+.env.test
+test-results/
+playwright-report/
 
 # Logs
 logs
