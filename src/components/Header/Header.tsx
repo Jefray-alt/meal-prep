@@ -2,7 +2,7 @@ import { Chip, useOverlayState } from '@heroui/react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 
-import { logout } from '../../lib/apiFetch'
+import { logout } from '../../lib/auth/auth'
 import { TOKEN_KEY } from '../../lib/constants'
 import LogoutConfirmModal from '../LogoutConfirmModal/LogoutConfirmModal'
 import UserMenu from '../UserMenu/UserMenu'

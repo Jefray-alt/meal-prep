@@ -8,8 +8,8 @@ vi.mock('react-router', async (importOriginal) => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-vi.mock('../../lib/apiFetch', () => ({
-  apiFetch: vi.fn(),
+vi.mock('../../lib/clients/api/api.client', () => ({
+  apiClient: vi.fn(),
 }))
 
 vi.mock('../../components/TagCombobox/TagCombobox', () => ({
@@ -22,12 +22,12 @@ vi.mock('../../components/TagCombobox/TagCombobox', () => ({
 
 import { waitFor } from '@testing-library/react'
 
-import { apiFetch } from '../../lib/apiFetch'
+import { apiClient } from '../../lib/clients/api/api.client'
 import { TOKEN_KEY } from '../../lib/constants'
 import { render, screen } from '../../test-utils'
 import Create from './Create'
 
-const mockApiFetch = vi.mocked(apiFetch)
+const mockApiClient = vi.mocked(apiClient)
 
 async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByPlaceholderText('e.g. High-protein Sunday batch'), 'My Meal Prep')
@@ -58,7 +58,7 @@ describe('Create', () => {
 
   it('calls POST /meal-preps and navigates to /meal-preps on 201', async () => {
     const user = userEvent.setup()
-    mockApiFetch.mockResolvedValue(new Response(JSON.stringify({ id: '1' }), { status: 201 }))
+    mockApiClient.mockResolvedValue(new Response(JSON.stringify({ id: '1' }), { status: 201 }))
 
     render(<Create />)
     await fillValidForm(user)
@@ -67,12 +67,12 @@ describe('Create', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/meal-preps')
     })
-    expect(mockApiFetch).toHaveBeenCalledWith('/meal-preps', expect.objectContaining({ method: 'POST' }))
+    expect(mockApiClient).toHaveBeenCalledWith('/meal-preps', expect.objectContaining({ method: 'POST' }))
   })
 
   it('shows server error and does not navigate when POST /meal-preps returns non-2xx', async () => {
     const user = userEvent.setup()
-    mockApiFetch.mockResolvedValue(
+    mockApiClient.mockResolvedValue(
       new Response(JSON.stringify({ message: 'Bad Request' }), { status: 400 }),
     )
 

@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router'
 import type { RegisterFormData } from '../../components/RegisterForm/RegisterForm.types'
 
 import RegisterForm from '../../components/RegisterForm/RegisterForm'
-import { apiFetch } from '../../lib/apiFetch'
-import { TOKEN_KEY } from '../../lib/constants'
+import { register } from '../../lib/auth/auth'
 
 const ALL_FIELDS: (keyof RegisterFormData)[] = [
   'confirmPassword',
@@ -48,35 +47,20 @@ export default function Register() {
     setIsSubmitting(true)
     setBanner(null)
 
-    try {
-      const res = await apiFetch('/auth/register', {
-        body: JSON.stringify({
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          password: data.password,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        skipRefresh: true,
-      })
+    const result = await register({
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      password: data.password,
+    })
 
-      if (res.status === 201) {
-        const body = (await res.json()) as { accessToken: string }
-        localStorage.setItem(TOKEN_KEY, body.accessToken)
-        void navigate('/')
-      } else if (res.status === 409) {
-        setBanner({ type: 'conflict' })
-      } else if (res.status === 429) {
-        setBanner({ type: 'rate-limit' })
-      } else {
-        setBanner({ type: 'error' })
-      }
-    } catch {
-      setBanner({ type: 'error' })
-    } finally {
-      setIsSubmitting(false)
+    if (result === 'ok') {
+      void navigate('/')
+    } else {
+      setBanner({ type: result })
     }
+
+    setIsSubmitting(false)
   }
 
   return (

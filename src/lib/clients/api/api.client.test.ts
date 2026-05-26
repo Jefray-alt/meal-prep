@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apiFetch, logout } from './apiFetch'
-import { TOKEN_KEY } from './constants'
+import { TOKEN_KEY } from '../../constants'
+import { apiClient } from './api.client'
 
-describe('apiFetch', () => {
+describe('apiClient', () => {
   beforeEach(() => {
     localStorage.clear()
     vi.stubGlobal('fetch', vi.fn())
@@ -20,7 +20,7 @@ describe('apiFetch', () => {
 
   it('returns response without refresh when request succeeds', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 200 }))
-    const res = await apiFetch('/api/foo')
+    const res = await apiClient('/api/foo')
     expect(res.status).toBe(200)
     expect(fetch).toHaveBeenCalledTimes(1)
   })
@@ -28,7 +28,7 @@ describe('apiFetch', () => {
   it('attaches Authorization header when token is present', async () => {
     localStorage.setItem(TOKEN_KEY, 'test-token')
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 200 }))
-    await apiFetch('/api/foo')
+    await apiClient('/api/foo')
     const [, init] = vi.mocked(fetch).mock.calls[0]
     expect((init?.headers as Headers).get('Authorization')).toBe('Bearer test-token')
   })
@@ -39,7 +39,7 @@ describe('apiFetch', () => {
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ accessToken: 'new-token' }), { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 200 }))
-    const res = await apiFetch('/api/foo')
+    const res = await apiClient('/api/foo')
     expect(res.status).toBe(200)
     expect(fetch).toHaveBeenCalledTimes(3)
     expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token')
@@ -50,7 +50,7 @@ describe('apiFetch', () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
-    await apiFetch('/api/foo')
+    await apiClient('/api/foo')
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
     expect(window.location.href).toBe('/login')
     expect(fetch).toHaveBeenCalledTimes(2)
@@ -62,7 +62,7 @@ describe('apiFetch', () => {
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ accessToken: 'new-token' }), { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
-    await apiFetch('/api/foo')
+    await apiClient('/api/foo')
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
     expect(window.location.href).toBe('/login')
   })
@@ -75,7 +75,7 @@ describe('apiFetch', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ accessToken: 'new-token' }), { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 200 }))
-    const [a, b] = await Promise.all([apiFetch('/api/foo'), apiFetch('/api/bar')])
+    const [a, b] = await Promise.all([apiClient('/api/foo'), apiClient('/api/bar')])
     expect(a.status).toBe(200)
     expect(b.status).toBe(200)
     expect(fetch).toHaveBeenCalledTimes(5)
@@ -83,32 +83,8 @@ describe('apiFetch', () => {
 
   it('skips refresh and returns 401 directly when skipRefresh is true', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }))
-    const res = await apiFetch('/auth/login', { method: 'POST', skipRefresh: true })
+    const res = await apiClient('/auth/login', { method: 'POST', skipRefresh: true })
     expect(res.status).toBe(401)
     expect(fetch).toHaveBeenCalledTimes(1)
-  })
-})
-
-describe('logout', () => {
-  beforeEach(() => {
-    localStorage.setItem(TOKEN_KEY, 'test-token')
-    vi.stubGlobal('fetch', vi.fn())
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  it('calls /auth/logout and clears token on success', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 200 }))
-    await logout()
-    expect(vi.mocked(fetch).mock.calls[0][0]).toBe('/auth/logout')
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
-  })
-
-  it('still clears token when server returns non-200', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 500 }))
-    await logout()
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
   })
 })

@@ -5,6 +5,8 @@ import type { LogoutConfirmModalProps } from './LogoutConfirmModal.types'
 export default function LogoutConfirmModal({ isLoggingOut, onCancel, onConfirm, state }: LogoutConfirmModalProps) {
   return (
     <Modal state={state}>
+      {/* Hidden trigger satisfies DialogTrigger's PressResponder — modal is opened programmatically */}
+      <Modal.Trigger aria-hidden className="sr-only" tabIndex={-1} />
       <Modal.Backdrop isDismissable={!isLoggingOut}>
         <Modal.Container placement="center">
           <Modal.Dialog>

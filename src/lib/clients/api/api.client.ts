@@ -1,8 +1,8 @@
-import { TOKEN_KEY } from './constants'
+import { TOKEN_KEY } from '../../constants'
 
 let refreshPromise: null | Promise<boolean> = null
 
-export async function apiFetch(
+export async function apiClient(
   url: string,
   init?: RequestInit & { skipRefresh?: boolean },
 ): Promise<Response> {
@@ -40,11 +40,6 @@ export async function apiFetch(
   }
 
   return retryRes
-}
-
-export async function logout(): Promise<void> {
-  await apiFetch('/api/auth/logout', { method: 'POST', skipRefresh: true }).catch(() => {})
-  localStorage.removeItem(TOKEN_KEY)
 }
 
 async function doRefresh(): Promise<boolean> {

@@ -1,14 +1,14 @@
 import { fireEvent, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { logout } from '../../lib/apiFetch'
+import { logout } from '../../lib/auth/auth'
 import { TOKEN_KEY } from '../../lib/constants'
 import { render, screen } from '../../test-utils'
 import Header from './Header'
 
 const mockNavigate = vi.hoisted(() => vi.fn())
 
-vi.mock('../../lib/apiFetch', () => ({
+vi.mock('../../lib/auth/auth', () => ({
   logout: vi.fn(),
 }))
 

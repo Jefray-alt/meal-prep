@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router'
 import type { LoginFormData } from '../../components/LoginForm/LoginForm.types'
 
 import LoginForm from '../../components/LoginForm/LoginForm'
-import { apiFetch } from '../../lib/apiFetch'
-import { TOKEN_KEY } from '../../lib/constants'
+import { login } from '../../lib/auth/auth'
 
 const ALL_FIELDS: (keyof LoginFormData)[] = ['email', 'password']
 
@@ -40,30 +39,15 @@ export default function Login() {
     setIsSubmitting(true)
     setBanner(null)
 
-    try {
-      const res = await apiFetch('/auth/login', {
-        body: JSON.stringify({ email: data.email, password: data.password }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        skipRefresh: true,
-      })
+    const result = await login(data.email, data.password)
 
-      if (res.status === 200) {
-        const body = (await res.json()) as { accessToken: string }
-        localStorage.setItem(TOKEN_KEY, body.accessToken)
-        void navigate('/')
-      } else if (res.status === 401) {
-        setBanner({ type: 'invalid-credentials' })
-      } else if (res.status === 429) {
-        setBanner({ type: 'rate-limit' })
-      } else {
-        setBanner({ type: 'error' })
-      }
-    } catch {
-      setBanner({ type: 'error' })
-    } finally {
-      setIsSubmitting(false)
+    if (result === 'ok') {
+      void navigate('/')
+    } else {
+      setBanner({ type: result })
     }
+
+    setIsSubmitting(false)
   }
 
   return (

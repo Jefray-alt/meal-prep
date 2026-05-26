@@ -51,7 +51,7 @@ export default function IngredientPills({ error, onChange, value }: IngredientPi
       )}
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <TextField className="flex-1" onChange={setDraftName} value={draftName}>
+        <TextField aria-label="Ingredient name" className="flex-1" onChange={setDraftName} value={draftName}>
           <Input
             fullWidth
             onKeyDown={(e) => {
@@ -64,7 +64,7 @@ export default function IngredientPills({ error, onChange, value }: IngredientPi
           />
         </TextField>
         <div className="flex gap-2">
-          <TextField className="flex-1 sm:w-32 sm:flex-none" onChange={setDraftQty} value={draftQty}>
+          <TextField aria-label="Quantity" className="flex-1 sm:w-32 sm:flex-none" onChange={setDraftQty} value={draftQty}>
             <Input fullWidth placeholder="Qty (e.g. 200g)" />
           </TextField>
           <Button

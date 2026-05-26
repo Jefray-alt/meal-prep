@@ -4,7 +4,7 @@ import { useAsyncList } from 'react-stately'
 
 import type { Tag, TagComboboxProps } from './TagCombobox.types'
 
-import { apiFetch } from '../../lib/apiFetch'
+import { apiClient } from '../../lib/clients/api/api.client'
 import TagPill from '../TagPill/TagPill'
 
 export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: TagComboboxProps) {
@@ -33,7 +33,7 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
       const offset = cursor ?? 0
       const params = new URLSearchParams({ limit: '10', offset: String(offset) })
       if (filterText?.trim()) params.set('search', filterText.trim())
-      const res = await apiFetch(`/tags?${params}`, { signal })
+      const res = await apiClient(`/tags?${params}`, { signal })
       if (!res.ok) throw new Error('Failed to load tags')
       const body = (await res.json()) as { data: Tag[]; hasMore: boolean }
       hasMoreRef.current = body.hasMore
@@ -137,6 +137,7 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
 
       <ComboBox
         allowsEmptyCollection
+        aria-label="Tags"
         disabledKeys={disabledKeys}
         fullWidth
         inputValue={inputValue}

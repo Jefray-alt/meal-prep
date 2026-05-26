@@ -7,7 +7,7 @@ export default function InputDock({ input, isAuthenticated, isLoading, onChange,
     <div className="relative z-10 border-t border-bark/10 bg-char/92 px-4 py-4 backdrop-blur-md">
       <div className="mx-auto max-w-2xl">
         <div className="input-wrap rounded-2xl border border-bark/15 bg-ash/60 px-4 pb-3 pt-3.5 transition-[border-color] duration-200 focus-within:border-ember/30">
-          <TextField className="w-full" onChange={onChange} value={input}>
+          <TextField aria-label="Message" className="w-full" onChange={onChange} value={input}>
             <TextArea
               className="w-full max-h-24 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed text-bark shadow-none outline-none placeholder:text-smoke/70 focus:ring-0 focus:shadow-none data-[focused=true]:ring-0 data-[focused=true]:shadow-none"
               onKeyDown={onKeyDown}

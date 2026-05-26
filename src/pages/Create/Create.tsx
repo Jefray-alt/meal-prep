@@ -6,7 +6,7 @@ import type { Tag } from '../../components/TagPill/TagPill.types'
 
 import CreateForm from '../../components/CreateForm/CreateForm'
 import Header from '../../components/Header/Header'
-import { apiFetch } from '../../lib/apiFetch'
+import { apiClient } from '../../lib/clients/api/api.client'
 
 const INITIAL_DATA: CreateFormData = {
   carbs: '',
@@ -64,7 +64,7 @@ export default function Create() {
     setIsSaving(true)
     setServerError(null)
 
-    const res = await apiFetch('/meal-preps', {
+    const res = await apiClient('/meal-preps', {
       body: JSON.stringify({
         carbs: parseFloat(data.carbs) || 0,
         fat: parseFloat(data.fat) || 0,
