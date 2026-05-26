@@ -1,4 +1,7 @@
 import type { Ingredient } from '../IngredientPills/IngredientPills.types'
+import type { Tag } from '../TagPill/TagPill.types'
+
+export type { Tag }
 
 export interface CreateFormData {
   carbs: string
@@ -13,13 +16,13 @@ export interface CreateFormData {
 export interface CreateFormProps {
   data: CreateFormData
   errors: Partial<Record<keyof CreateFormData, string>>
-  existingTags?: string[]
-  isLoadingTags?: boolean
   isSaving?: boolean
   onBlur: (field: keyof CreateFormData) => void
   onCancel: () => void
   onChange: (patch: Partial<CreateFormData>) => void
   onSave: () => void
+  onTagRemove: (tag: Tag) => void
+  onTagSelect: (tag: Tag) => void
+  selectedTags: Tag[]
   serverError?: null | string
-  tagsLoadError?: boolean
 }

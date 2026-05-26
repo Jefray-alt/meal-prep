@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import type { CreateFormData } from '../../components/CreateForm/CreateForm.types'
+import type { Tag } from '../../components/TagPill/TagPill.types'
 
 import CreateForm from '../../components/CreateForm/CreateForm'
 import Header from '../../components/Header/Header'
@@ -23,31 +24,11 @@ export default function Create() {
   const navigate = useNavigate()
   const [data, setData] = useState<CreateFormData>(INITIAL_DATA)
   const [touched, setTouched] = useState<Set<keyof CreateFormData>>(new Set())
-  const [isLoadingTags, setIsLoadingTags] = useState(true)
-  const [existingTags, setExistingTags] = useState<string[]>([])
-  const [tagsLoadError, setTagsLoadError] = useState(false)
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [serverError, setServerError] = useState<null | string>(null)
 
   const errors = useMemo(() => validate(data, touched), [data, touched])
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const res = await apiFetch('/tags')
-        if (res.ok) {
-          const tags = (await res.json()) as Array<{ id: string; name: string }>
-          setExistingTags(tags.map((t) => t.name))
-        } else {
-          setTagsLoadError(true)
-        }
-      } catch {
-        setTagsLoadError(true)
-      } finally {
-        setIsLoadingTags(false)
-      }
-    })()
-  }, [])
 
   const handleChange = (patch: Partial<CreateFormData>) => {
     setData((prev) => ({ ...prev, ...patch }))
@@ -62,6 +43,16 @@ export default function Create() {
 
   const handleBlur = (field: keyof CreateFormData) => {
     setTouched((prev) => new Set([...prev, field]))
+  }
+
+  const handleTagSelect = (tag: Tag) => {
+    setSelectedTags((prev) => [...prev, tag])
+    handleChange({ tags: [...data.tags, tag.name] })
+  }
+
+  const handleTagRemove = (tag: Tag) => {
+    setSelectedTags((prev) => prev.filter((t) => t.id !== tag.id))
+    handleChange({ tags: data.tags.filter((n) => n !== tag.name) })
   }
 
   const handleSave = async () => {
@@ -128,15 +119,15 @@ export default function Create() {
           <CreateForm
             data={data}
             errors={errors}
-            existingTags={existingTags}
-            isLoadingTags={isLoadingTags}
             isSaving={isSaving}
             onBlur={handleBlur}
             onCancel={() => { void navigate('/') }}
             onChange={handleChange}
             onSave={() => { void handleSave() }}
+            onTagRemove={handleTagRemove}
+            onTagSelect={handleTagSelect}
+            selectedTags={selectedTags}
             serverError={serverError}
-            tagsLoadError={tagsLoadError}
           />
         </div>
       </main>

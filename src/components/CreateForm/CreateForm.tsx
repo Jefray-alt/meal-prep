@@ -3,11 +3,11 @@ import { Button, FieldError, Input, Label, TextArea, TextField } from '@heroui/r
 import type { CreateFormProps } from './CreateForm.types'
 
 import IngredientPills from '../IngredientPills/IngredientPills'
-import TagPills from '../TagPills/TagPills'
+import TagCombobox from '../TagCombobox/TagCombobox'
 
 const labelCls = 'mb-1 text-[10px] tracking-[0.2em] text-smoke/60 uppercase'
 
-export default function CreateForm({ data, errors, existingTags, isLoadingTags, isSaving, onBlur, onCancel, onChange, onSave, serverError, tagsLoadError }: CreateFormProps) {
+export default function CreateForm({ data, errors, isSaving, onBlur, onCancel, onChange, onSave, onTagRemove, onTagSelect, selectedTags, serverError }: CreateFormProps) {
   return (
     <div className="mt-10 flex flex-col gap-6 rounded-2xl border border-bark/10 bg-char/92 p-8 shadow-sm backdrop-blur-sm">
       {/* Title */}
@@ -68,13 +68,11 @@ export default function CreateForm({ data, errors, existingTags, isLoadingTags, 
       />
 
       {/* Tags */}
-      <TagPills
+      <TagCombobox
         error={errors.tags}
-        existingTags={existingTags}
-        isLoadingTags={isLoadingTags}
-        onChange={(tags) => { onChange({ tags }) }}
-        tagsLoadError={tagsLoadError}
-        value={data.tags}
+        onTagRemove={onTagRemove}
+        onTagSelect={onTagSelect}
+        value={selectedTags}
       />
 
       {/* Actions */}
