@@ -204,4 +204,105 @@ describe('TagCombobox', () => {
 
     expect(onTagRemove).toHaveBeenCalledWith(tag)
   })
+
+  it('clears the input after selecting an existing tag from the dropdown', async () => {
+    const user = userEvent.setup()
+    const tag = makeTag('keto')
+    mockApiFetch.mockResolvedValue(makeResponse([tag]))
+
+    render(<TagCombobox {...defaultProps} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'keto' })).toBeInTheDocument()
+    })
+    await user.click(screen.getByRole('option', { name: 'keto' }))
+
+    await waitFor(() => {
+      expect(input).toHaveValue('')
+    })
+  })
+
+  it('calls onTagSelect with a new tag when Enter is pressed with typed text', async () => {
+    const user = userEvent.setup()
+    const onTagSelect = vi.fn()
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} onTagSelect={onTagSelect} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+    fireEvent.change(input, { target: { value: 'new-tag' } })
+    await user.keyboard('{Enter}')
+
+    expect(onTagSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'new-tag' }),
+    )
+    expect(onTagSelect.mock.calls[0][0]).toHaveProperty('id')
+  })
+
+  it('clears the input after creating a new tag via Enter', async () => {
+    const user = userEvent.setup()
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+    fireEvent.change(input, { target: { value: 'lunch' } })
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(input).toHaveValue('')
+    })
+  })
+
+  it('does not call onTagSelect when Enter is pressed with an empty input', async () => {
+    const user = userEvent.setup()
+    const onTagSelect = vi.fn()
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} onTagSelect={onTagSelect} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+    await user.keyboard('{Enter}')
+
+    expect(onTagSelect).not.toHaveBeenCalled()
+  })
+
+  it('does not call onTagSelect when Enter is pressed with a duplicate tag name', async () => {
+    const user = userEvent.setup()
+    const onTagSelect = vi.fn()
+    const existing = makeTag('keto')
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} onTagSelect={onTagSelect} value={[existing]} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+    fireEvent.change(input, { target: { value: 'keto' } })
+    await user.keyboard('{Enter}')
+
+    expect(onTagSelect).not.toHaveBeenCalled()
+  })
+
+  it('shows a "Press Enter to add" hint when the input has text', async () => {
+    const user = userEvent.setup()
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} />)
+    const input = screen.getByPlaceholderText('Search tags…')
+    await user.click(input)
+    fireEvent.change(input, { target: { value: 'lunch' } })
+
+    await waitFor(() => {
+      expect(screen.getByText(/Press Enter to add/)).toBeInTheDocument()
+    })
+  })
+
+  it('does not show the hint when the input is empty', () => {
+    mockApiFetch.mockResolvedValue(makeResponse([]))
+
+    render(<TagCombobox {...defaultProps} />)
+
+    expect(screen.queryByText(/Press Enter to add/)).not.toBeInTheDocument()
+  })
 })

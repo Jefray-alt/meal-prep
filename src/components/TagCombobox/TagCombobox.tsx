@@ -12,6 +12,21 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
   const debounceRef = useRef<null | ReturnType<typeof setTimeout>>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const hasMoreRef = useRef(false)
+  const inputValueRef = useRef('')
+  // Set by handleSelect to stop handleInputChange from overwriting the cleared input
+  const isSelectingRef = useRef(false)
+  // Stable refs so the native keydown handler never captures stale props
+  const valueRef = useRef(value)
+  const onTagSelectRef = useRef(onTagSelect)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { valueRef.current = value; }, [value])
+  useEffect(() => { onTagSelectRef.current = onTagSelect; }, [onTagSelect])
+
+  const updateInputValue = (val: string) => {
+    inputValueRef.current = val
+    setInputValue(val)
+  }
 
   const list = useAsyncList<Tag, number>({
     async load({ cursor, filterText, signal }) {
@@ -34,6 +49,32 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
     listRef.current = list
   })
 
+  // Native listener on the actual <input> element fires before React's synthetic event
+  // delegation, so stopPropagation() here prevents React Aria from intercepting Enter
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const input = container.querySelector<HTMLInputElement>('input')
+    if (!input) return
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter') return
+      const trimmed = inputValueRef.current.trim()
+      if (!trimmed) return
+      if (valueRef.current.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) return
+      e.preventDefault()
+      e.stopPropagation()
+      onTagSelectRef.current({ id: crypto.randomUUID(), name: trimmed })
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      inputValueRef.current = ''
+      setInputValue('')
+      listRef.current.setFilterText('')
+    }
+
+    input.addEventListener('keydown', handler)
+    return () => { input.removeEventListener('keydown', handler); }
+  }, [])
+
   const sentinelCallbackRef = useCallback((node: HTMLDivElement | null) => {
     observerRef.current?.disconnect()
     observerRef.current = null
@@ -47,10 +88,13 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
   }, [])
 
   const handleInputChange = (val: string) => {
-    setInputValue(val)
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
+    // HeroUI fires onInputChange after selection with the selected item's text — skip it
+    if (isSelectingRef.current) {
+      isSelectingRef.current = false
+      return
     }
+    updateInputValue(val)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
       list.setFilterText(val)
     }, 300)
@@ -60,11 +104,12 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
     if (!key) return
     const tag = list.items.find((t) => t.id === String(key))
     if (!tag) return
+    isSelectingRef.current = true
+    // Safety reset in case onInputChange doesn't fire (e.g. input was already empty)
+    setTimeout(() => { isSelectingRef.current = false }, 0)
     onTagSelect(tag)
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-    setInputValue('')
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    updateInputValue('')
     list.setFilterText('')
   }
 
@@ -72,7 +117,7 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
   const displayItems = list.error ? [] : list.items
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" ref={containerRef}>
       <span className="text-[10px] tracking-[0.25em] text-smoke/60 uppercase">Tags</span>
       {error && <p className="text-xs text-red-400">{error}</p>}
 
@@ -82,6 +127,12 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
             <TagPill key={tag.id} onRemove={onTagRemove} tag={tag} />
           ))}
         </div>
+      )}
+
+      {inputValue.trim() && (
+        <p className="text-xs text-smoke/60" id="tag-input-hint">
+          Press Enter to add &ldquo;{inputValue.trim()}&rdquo;
+        </p>
       )}
 
       <ComboBox
@@ -95,7 +146,11 @@ export default function TagCombobox({ error, onTagRemove, onTagSelect, value }: 
         onInputChange={handleInputChange}
       >
         <ComboBox.InputGroup>
-          <Input fullWidth placeholder="Search tags…" />
+          <Input
+            aria-describedby={inputValue.trim() ? 'tag-input-hint' : undefined}
+            fullWidth
+            placeholder="Search tags…"
+          />
           <ComboBox.Trigger>▼</ComboBox.Trigger>
         </ComboBox.InputGroup>
         <ComboBox.Popover>
