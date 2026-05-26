@@ -7,6 +7,7 @@ import InputDock from './InputDock'
 
 const defaultProps = {
   input: '',
+  isAuthenticated: true,
   isLoading: false,
   onChange: vi.fn(),
   onCreateYourself: vi.fn(),
@@ -45,5 +46,15 @@ describe('InputDock', () => {
     render(<InputDock {...defaultProps} input="test message" onSend={onSend} />)
     await user.click(screen.getByRole('button', { name: 'Ask' }))
     expect(onSend).toHaveBeenCalledOnce()
+  })
+
+  it('hides Create yourself button when isAuthenticated is false', () => {
+    render(<InputDock {...defaultProps} isAuthenticated={false} />)
+    expect(screen.queryByRole('button', { name: 'Create yourself' })).not.toBeInTheDocument()
+  })
+
+  it('shows Create yourself button when isAuthenticated is true', () => {
+    render(<InputDock {...defaultProps} isAuthenticated={true} />)
+    expect(screen.getByRole('button', { name: 'Create yourself' })).toBeInTheDocument()
   })
 })

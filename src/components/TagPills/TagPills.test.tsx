@@ -32,4 +32,34 @@ describe('TagPills', () => {
     await user.click(screen.getByRole('button', { name: '×' }))
     expect(onChange).toHaveBeenCalledWith([])
   })
+
+  it('renders "Loading tags…" with role status when isLoadingTags is true', () => {
+    render(<TagPills isLoadingTags onChange={vi.fn()} value={[]} />)
+    expect(screen.getByRole('status')).toHaveTextContent('Loading tags…')
+  })
+
+  it('renders "Couldn\'t load tags" when tagsLoadError is true', () => {
+    render(<TagPills onChange={vi.fn()} tagsLoadError value={[]} />)
+    expect(screen.getByText('Couldn\'t load tags')).toBeInTheDocument()
+  })
+
+  it('renders suggestion chips for existingTags not already in value', () => {
+    render(<TagPills existingTags={['keto', 'bulk']} onChange={vi.fn()} value={[]} />)
+    expect(screen.getByRole('button', { name: 'keto' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'bulk' })).toBeInTheDocument()
+  })
+
+  it('clicking a suggestion chip calls onChange with tag added', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<TagPills existingTags={['keto', 'bulk']} onChange={onChange} value={[]} />)
+    await user.click(screen.getByRole('button', { name: 'keto' }))
+    expect(onChange).toHaveBeenCalledWith(['keto'])
+  })
+
+  it('does not render suggestion chip for a tag already in value', () => {
+    render(<TagPills existingTags={['keto', 'bulk']} onChange={vi.fn()} value={['keto']} />)
+    expect(screen.queryByRole('button', { name: 'keto' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'bulk' })).toBeInTheDocument()
+  })
 })

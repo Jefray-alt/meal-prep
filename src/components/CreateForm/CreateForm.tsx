@@ -7,7 +7,7 @@ import TagPills from '../TagPills/TagPills'
 
 const labelCls = 'mb-1 text-[10px] tracking-[0.2em] text-smoke/60 uppercase'
 
-export default function CreateForm({ data, errors, onBlur, onCancel, onChange, onSave }: CreateFormProps) {
+export default function CreateForm({ data, errors, existingTags, isLoadingTags, isSaving, onBlur, onCancel, onChange, onSave, serverError, tagsLoadError }: CreateFormProps) {
   return (
     <div className="mt-10 flex flex-col gap-6 rounded-2xl border border-bark/10 bg-char/92 p-8 shadow-sm backdrop-blur-sm">
       {/* Title */}
@@ -70,12 +70,18 @@ export default function CreateForm({ data, errors, onBlur, onCancel, onChange, o
       {/* Tags */}
       <TagPills
         error={errors.tags}
+        existingTags={existingTags}
+        isLoadingTags={isLoadingTags}
         onChange={(tags) => { onChange({ tags }) }}
+        tagsLoadError={tagsLoadError}
         value={data.tags}
       />
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3 border-t border-bark/8 pt-6">
+        {serverError && (
+          <p className="mr-auto text-xs text-red-400" role="alert">{serverError}</p>
+        )}
         <Button
           className="h-auto rounded-lg border border-bark/15 px-4 py-1.5 text-xs text-smoke hover:border-bark/30 hover:text-bark"
           onPress={onCancel}
@@ -85,10 +91,11 @@ export default function CreateForm({ data, errors, onBlur, onCancel, onChange, o
         </Button>
         <Button
           className="h-auto rounded-lg px-5 py-1.5 text-xs font-medium"
+          isDisabled={isSaving}
           onPress={onSave}
           variant="primary"
         >
-          Save Meal Prep
+          {isSaving ? 'Saving…' : 'Save Meal Prep'}
         </Button>
       </div>
     </div>

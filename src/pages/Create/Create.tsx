@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import type { CreateFormData } from '../../components/CreateForm/CreateForm.types'
 
 import CreateForm from '../../components/CreateForm/CreateForm'
 import Header from '../../components/Header/Header'
+import { apiFetch } from '../../lib/apiFetch'
 
 const INITIAL_DATA: CreateFormData = {
   carbs: '',
@@ -22,8 +23,31 @@ export default function Create() {
   const navigate = useNavigate()
   const [data, setData] = useState<CreateFormData>(INITIAL_DATA)
   const [touched, setTouched] = useState<Set<keyof CreateFormData>>(new Set())
+  const [isLoadingTags, setIsLoadingTags] = useState(true)
+  const [existingTags, setExistingTags] = useState<string[]>([])
+  const [tagsLoadError, setTagsLoadError] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [serverError, setServerError] = useState<null | string>(null)
 
   const errors = useMemo(() => validate(data, touched), [data, touched])
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await apiFetch('/tags')
+        if (res.ok) {
+          const tags = (await res.json()) as Array<{ id: string; name: string }>
+          setExistingTags(tags.map((t) => t.name))
+        } else {
+          setTagsLoadError(true)
+        }
+      } catch {
+        setTagsLoadError(true)
+      } finally {
+        setIsLoadingTags(false)
+      }
+    })()
+  }, [])
 
   const handleChange = (patch: Partial<CreateFormData>) => {
     setData((prev) => ({ ...prev, ...patch }))
@@ -40,20 +64,36 @@ export default function Create() {
     setTouched((prev) => new Set([...prev, field]))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const allTouched = new Set([...touched, ...VALIDATABLE_FIELDS])
     setTouched(allTouched)
 
     if (Object.keys(validate(data, allTouched)).length > 0) return
 
-    const normalized = {
-      ...data,
-      carbs: data.carbs.trim() || '0',
-      fat: data.fat.trim() || '0',
-      protein: data.protein.trim() || '0',
+    setIsSaving(true)
+    setServerError(null)
+
+    const res = await apiFetch('/meal-preps', {
+      body: JSON.stringify({
+        carbs: parseFloat(data.carbs) || 0,
+        fat: parseFloat(data.fat) || 0,
+        ingredients: data.ingredients,
+        instructions: data.instructions,
+        protein: parseFloat(data.protein) || 0,
+        tags: data.tags,
+        title: data.title,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+
+    if (res.status === 201) {
+      void navigate('/meal-preps')
+      return
     }
-    console.log(normalized)
-    void navigate('/meal-preps')
+
+    setIsSaving(false)
+    setServerError('Something went wrong. Please try again.')
   }
 
   return (
@@ -88,10 +128,15 @@ export default function Create() {
           <CreateForm
             data={data}
             errors={errors}
+            existingTags={existingTags}
+            isLoadingTags={isLoadingTags}
+            isSaving={isSaving}
             onBlur={handleBlur}
             onCancel={() => { void navigate('/') }}
             onChange={handleChange}
-            onSave={handleSave}
+            onSave={() => { void handleSave() }}
+            serverError={serverError}
+            tagsLoadError={tagsLoadError}
           />
         </div>
       </main>

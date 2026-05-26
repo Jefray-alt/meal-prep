@@ -7,9 +7,11 @@ import EmptyState from '../../components/EmptyState/EmptyState'
 import Header from '../../components/Header/Header'
 import InputDock from '../../components/InputDock/InputDock'
 import MessageList from '../../components/MessageList/MessageList'
+import { TOKEN_KEY } from '../../lib/constants'
 
 export default function Home() {
   const navigate = useNavigate()
+  const isAuthenticated = !!localStorage.getItem(TOKEN_KEY)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -94,6 +96,7 @@ export default function Home() {
 
       <InputDock
         input={input}
+        isAuthenticated={isAuthenticated}
         isLoading={isLoading}
         onChange={handleChange}
         onCreateYourself={() => { void navigate('/create') }}

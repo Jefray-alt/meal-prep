@@ -2,7 +2,7 @@ import { Button, TextArea, TextField } from '@heroui/react'
 
 import type { InputDockProps } from './InputDock.types'
 
-export default function InputDock({ input, isLoading, onChange, onCreateYourself, onKeyDown, onSend, textareaRef }: InputDockProps) {
+export default function InputDock({ input, isAuthenticated, isLoading, onChange, onCreateYourself, onKeyDown, onSend, textareaRef }: InputDockProps) {
   return (
     <div className="relative z-10 border-t border-bark/10 bg-char/92 px-4 py-4 backdrop-blur-md">
       <div className="mx-auto max-w-2xl">
@@ -21,13 +21,15 @@ export default function InputDock({ input, isLoading, onChange, onCreateYourself
               Enter to send · Shift+Enter for new line
             </span>
             <div className="ml-auto flex items-center gap-2">
-              <Button
-                className="h-auto rounded-lg border border-moss/30 px-3 py-1.5 text-xs text-moss hover:border-moss/55 hover:text-moss"
-                onPress={onCreateYourself}
-                variant="ghost"
-              >
-                Create yourself
-              </Button>
+              {isAuthenticated && (
+                <Button
+                  className="h-auto rounded-lg border border-moss/30 px-3 py-1.5 text-xs text-moss hover:border-moss/55 hover:text-moss"
+                  onPress={onCreateYourself}
+                  variant="ghost"
+                >
+                  Create yourself
+                </Button>
+              )}
               <Button
                 className="h-auto rounded-lg px-4 py-1.5 text-xs font-medium"
                 isDisabled={!input.trim() || isLoading}

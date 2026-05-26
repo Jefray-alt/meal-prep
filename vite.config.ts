@@ -9,8 +9,9 @@ export default defineConfig(({ mode }) => {
     plugins: [tailwindcss(), react()],
     server: {
       proxy: {
-        '/auth': {
+        '/api': {
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
           target: env.VITE_API_URL,
         },
       },

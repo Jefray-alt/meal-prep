@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 
+import AuthRoute from './components/AuthRoute/AuthRoute'
 import GuestRoute from './components/GuestRoute/GuestRoute'
 import Create from './pages/Create/Create'
 import Home from './pages/Home/Home'
@@ -11,7 +12,14 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Home />} path="/" />
-      <Route element={<Create />} path="/create" />
+      <Route
+        element={
+          <AuthRoute>
+            <Create />
+          </AuthRoute>
+        }
+        path="/create"
+      />
       <Route
         element={
           <GuestRoute>

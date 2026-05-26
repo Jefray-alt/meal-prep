@@ -12,7 +12,7 @@ export async function apiFetch(
   const headers = new Headers(fetchInit.headers)
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  const res = await fetch(url, { ...fetchInit, headers })
+  const res = await fetch(`/api${url}`, { ...fetchInit, headers })
 
   if (res.status !== 401 || skipRefresh) return res
 
@@ -32,7 +32,7 @@ export async function apiFetch(
   const newToken = localStorage.getItem(TOKEN_KEY)
   const retryHeaders = new Headers(fetchInit.headers)
   if (newToken) retryHeaders.set('Authorization', `Bearer ${newToken}`)
-  const retryRes = await fetch(url, { ...fetchInit, headers: retryHeaders })
+  const retryRes = await fetch(`/api${url}`, { ...fetchInit, headers: retryHeaders })
 
   if (retryRes.status === 401) {
     localStorage.removeItem(TOKEN_KEY)
@@ -43,12 +43,12 @@ export async function apiFetch(
 }
 
 export async function logout(): Promise<void> {
-  await apiFetch('/auth/logout', { method: 'POST', skipRefresh: true }).catch(() => {})
+  await apiFetch('/api/auth/logout', { method: 'POST', skipRefresh: true }).catch(() => {})
   localStorage.removeItem(TOKEN_KEY)
 }
 
 async function doRefresh(): Promise<boolean> {
-  const res = await fetch('/auth/refresh', { method: 'POST' })
+  const res = await fetch('/api/auth/refresh', { method: 'POST' })
   if (res.ok) {
     const body = (await res.json()) as { accessToken: string }
     localStorage.setItem(TOKEN_KEY, body.accessToken)

@@ -13,8 +13,13 @@ export interface CreateFormData {
 export interface CreateFormProps {
   data: CreateFormData
   errors: Partial<Record<keyof CreateFormData, string>>
+  existingTags?: string[]
+  isLoadingTags?: boolean
+  isSaving?: boolean
   onBlur: (field: keyof CreateFormData) => void
   onCancel: () => void
   onChange: (patch: Partial<CreateFormData>) => void
   onSave: () => void
+  serverError?: null | string
+  tagsLoadError?: boolean
 }
