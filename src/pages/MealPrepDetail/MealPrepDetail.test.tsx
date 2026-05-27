@@ -4,7 +4,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router')>()
-  return { ...actual, useParams: vi.fn(() => ({ id: 'test-id' })) }
+  return {
+    ...actual,
+    useNavigate: vi.fn(() => vi.fn()),
+    useParams: vi.fn(() => ({ id: 'test-id' })),
+  }
 })
 
 vi.mock('../../lib/clients/api/api.client', () => ({
@@ -20,11 +24,36 @@ vi.mock('../../components/MacrosPill/MacrosPill', () => ({
   ),
 }))
 
+vi.mock('../../components/DeleteMealPrepModal/DeleteMealPrepModal', () => ({
+  __esModule: true,
+  default: ({
+    error,
+    isOpen,
+    onClose,
+    onConfirm,
+  }: {
+    error: null | string
+    isOpen: boolean
+    onClose: () => void
+    onConfirm: () => void
+  }) =>
+    isOpen ? (
+      <div data-testid="delete-modal">
+        <button onClick={onConfirm} type="button">Confirm delete</button>
+        <button onClick={onClose} type="button">Cancel</button>
+        {error && <p role="alert">{error}</p>}
+      </div>
+    ) : null,
+}))
+
+import { useNavigate } from 'react-router'
+
 import { apiClient } from '../../lib/clients/api/api.client'
 import { render, screen } from '../../test-utils'
 import MealPrepDetail from './MealPrepDetail'
 
 const mockApiClient = vi.mocked(apiClient)
+const mockUseNavigate = vi.mocked(useNavigate)
 
 function makeMealPrep() {
   return {
@@ -117,9 +146,63 @@ describe('MealPrepDetail', () => {
     consoleSpy.mockRestore()
   })
 
-  it('calls console.log("delete") when Delete button is pressed', async () => {
+  it('opens DeleteMealPrepModal when Delete button is pressed', async () => {
     const user = userEvent.setup()
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { })
+    mockApiClient.mockResolvedValue(okResponse(makeMealPrep()))
+    render(<MealPrepDetail />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /delete high-protein chicken bowls/i })).toBeInTheDocument()
+    })
+
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /delete high-protein chicken bowls/i }))
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument()
+  })
+
+  it('navigates to /meal-preps after successful deletion', async () => {
+    const user = userEvent.setup()
+    const navigate = vi.fn()
+    mockUseNavigate.mockReturnValue(navigate)
+    mockApiClient
+      .mockResolvedValueOnce(okResponse(makeMealPrep()))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+    render(<MealPrepDetail />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /delete high-protein chicken bowls/i })).toBeInTheDocument()
+    })
+    await user.click(screen.getByRole('button', { name: /delete high-protein chicken bowls/i }))
+    await user.click(screen.getByRole('button', { name: /confirm delete/i }))
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith('/meal-preps')
+    })
+  })
+
+  it('shows error inside modal and keeps it open when API call fails', async () => {
+    const user = userEvent.setup()
+    mockApiClient
+      .mockResolvedValueOnce(okResponse(makeMealPrep()))
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
+    render(<MealPrepDetail />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /delete high-protein chicken bowls/i })).toBeInTheDocument()
+    })
+    await user.click(screen.getByRole('button', { name: /delete high-protein chicken bowls/i }))
+    await user.click(screen.getByRole('button', { name: /confirm delete/i }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong. Try again.')
+    })
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument()
+  })
+
+  it('closes modal and does not navigate when Cancel is clicked', async () => {
+    const user = userEvent.setup()
+    const navigate = vi.fn()
+    mockUseNavigate.mockReturnValue(navigate)
     mockApiClient.mockResolvedValue(okResponse(makeMealPrep()))
     render(<MealPrepDetail />)
 
@@ -127,7 +210,10 @@ describe('MealPrepDetail', () => {
       expect(screen.getByRole('button', { name: /delete high-protein chicken bowls/i })).toBeInTheDocument()
     })
     await user.click(screen.getByRole('button', { name: /delete high-protein chicken bowls/i }))
-    expect(consoleSpy).toHaveBeenCalledWith('delete')
-    consoleSpy.mockRestore()
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /cancel/i }))
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument()
+    expect(navigate).not.toHaveBeenCalled()
   })
 })

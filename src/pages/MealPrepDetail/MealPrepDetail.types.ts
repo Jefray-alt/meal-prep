@@ -1,3 +1,5 @@
+export type DeleteStatus = 'error' | 'idle' | 'pending'
+
 export interface MealPrepDetail {
   carbs: null | number
   createdAt: string
@@ -10,3 +12,4 @@ export interface MealPrepDetail {
   title: string
   updatedAt: string
 }
+export type Status = 'error' | 'loading' | 'not-found' | 'success'

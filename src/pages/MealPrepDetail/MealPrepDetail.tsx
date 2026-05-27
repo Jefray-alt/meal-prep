@@ -1,21 +1,25 @@
 import { Button } from '@heroui/react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
-import type { MealPrepDetail as MealPrepDetailType } from './MealPrepDetail.types'
+import type { DeleteStatus, MealPrepDetail as MealPrepDetailType, Status } from './MealPrepDetail.types'
 
+import DeleteMealPrepModal from '../../components/DeleteMealPrepModal/DeleteMealPrepModal'
 import Header from '../../components/Header/Header'
 import MacrosPill from '../../components/MacrosPill/MacrosPill'
 import MealPrepDetailSkeleton from '../../components/MealPrepDetailSkeleton/MealPrepDetailSkeleton'
 import { apiClient } from '../../lib/clients/api/api.client'
 
-type Status = 'error' | 'loading' | 'not-found' | 'success'
+
 
 export default function MealPrepDetail() {
   const { id = '' } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [status, setStatus] = useState<Status>('loading')
   const [mealPrep, setMealPrep] = useState<MealPrepDetailType | null>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [deleteStatus, setDeleteStatus] = useState<DeleteStatus>('idle')
 
   useEffect(() => {
     async function load() {
@@ -32,6 +36,30 @@ export default function MealPrepDetail() {
     }
     void load()
   }, [id])
+
+  const handleDeleteConfirm = async () => {
+    setDeleteStatus('pending')
+    try {
+      const res = await apiClient(`/meal-preps/${id}`, { method: 'DELETE' })
+      if (res.status === 404) {
+        setIsDeleteModalOpen(false)
+        void navigate('/meal-preps')
+        return
+      }
+      if (!res.ok) {
+        setDeleteStatus('error')
+        return
+      }
+      void navigate('/meal-preps')
+    } catch {
+      setDeleteStatus('error')
+    }
+  }
+
+  const handleDeleteClose = () => {
+    setIsDeleteModalOpen(false)
+    setDeleteStatus('idle')
+  }
 
   return (
     <div
@@ -96,7 +124,7 @@ export default function MealPrepDetail() {
                     aria-label={`Delete ${mealPrep.title}`}
                     className="h-auto min-w-0 rounded-full p-2 text-smoke/50 hover:bg-red-500/10 hover:text-red-400"
                     isIconOnly
-                    onPress={() => { console.log('delete') }}
+                    onPress={() => { setIsDeleteModalOpen(true) }}
                     variant="ghost"
                   >
                     <Trash2 size={15} strokeWidth={1.5} />
@@ -169,6 +197,15 @@ export default function MealPrepDetail() {
                 </section>
               )}
 
+              <DeleteMealPrepModal
+                error={deleteStatus === 'error' ? 'Something went wrong. Try again.' : null}
+                isLoading={deleteStatus === 'pending'}
+                isOpen={isDeleteModalOpen}
+                mealPrepTitle={mealPrep.title}
+                onClose={handleDeleteClose}
+                onConfirm={() => { void handleDeleteConfirm() }}
+                tags={mealPrep.tags}
+              />
             </>
           )}
         </div>
