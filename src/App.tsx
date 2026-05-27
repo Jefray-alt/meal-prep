@@ -5,6 +5,7 @@ import GuestRoute from './components/GuestRoute/GuestRoute'
 import Create from './pages/Create/Create'
 import Home from './pages/Home/Home'
 import Login from './pages/Login/Login'
+import MealPrepDetail from './pages/MealPrepDetail/MealPrepDetail'
 import MealPreps from './pages/MealPreps/MealPreps'
 import Register from './pages/Register/Register'
 
@@ -30,6 +31,14 @@ export default function App() {
       />
       <Route element={<GuestRoute><Register /></GuestRoute>} path="/register" />
       <Route element={<MealPreps />} path="/meal-preps" />
+      <Route
+        element={
+          <AuthRoute>
+            <MealPrepDetail />
+          </AuthRoute>
+        }
+        path="/meal-preps/:id"
+      />
     </Routes>
   )
 }
