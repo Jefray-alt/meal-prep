@@ -2,8 +2,10 @@ import { Link } from 'react-router'
 
 import type { MealPrepCardProps } from './MealPrepCard.types'
 
+import MacrosPill from '../MacrosPill/MacrosPill'
+
 export default function MealPrepCard({ mealPrep }: MealPrepCardProps) {
-  const { carbs, fat, id, protein, tags, title } = mealPrep
+  const { carbs, fat, firstTag, id, protein, tagCount, title } = mealPrep
   const hasMacros = protein !== null || carbs !== null || fat !== null
 
   return (
@@ -20,14 +22,14 @@ export default function MealPrepCard({ mealPrep }: MealPrepCardProps) {
           {title}
         </span>
         <div className="flex shrink-0 items-center gap-1.5">
-          {tags.length > 0 && (
+          {firstTag !== null && (
             <span className="rounded-full border border-smoke/20 px-2 py-0.5 text-[9px] tracking-[0.15em] text-smoke/50 uppercase">
-              {tags[0].name}
+              {firstTag.name}
             </span>
           )}
-          {tags.length > 1 && (
+          {tagCount > 1 && (
             <span className="rounded-full border border-smoke/20 px-2 py-0.5 text-[9px] tracking-[0.15em] text-smoke/50 uppercase">
-              +{tags.length - 1}
+              +{tagCount - 1}
             </span>
           )}
         </div>
@@ -35,22 +37,17 @@ export default function MealPrepCard({ mealPrep }: MealPrepCardProps) {
       {hasMacros && (
         <div className="flex flex-wrap items-center gap-2">
           {protein !== null && (
-            <span className="rounded-full border border-smoke/15 px-2.5 py-0.5 text-[10px] text-smoke/60">
-              {protein}g protein
-            </span>
+            <MacrosPill label="protein" value={protein} />
           )}
           {carbs !== null && (
-            <span className="rounded-full border border-smoke/15 px-2.5 py-0.5 text-[10px] text-smoke/60">
-              {carbs}g carbs
-            </span>
+            <MacrosPill label="carbs" value={carbs} />
           )}
           {fat !== null && (
-            <span className="rounded-full border border-smoke/15 px-2.5 py-0.5 text-[10px] text-smoke/60">
-              {fat}g fat
-            </span>
+            <MacrosPill label="fat" value={fat} />
           )}
         </div>
-      )}
-    </Link>
+      )
+      }
+    </Link >
   )
 }

@@ -11,6 +11,15 @@ vi.mock('../../lib/clients/api/api.client', () => ({
   apiClient: vi.fn(),
 }))
 
+vi.mock('../../components/MacrosPill/MacrosPill', () => ({
+  __esModule: true,
+  default: ({ label, value }: { label: string; value: number }) => (
+    <div>
+      <span>{value}g {label}</span>
+    </div>
+  ),
+}))
+
 import { apiClient } from '../../lib/clients/api/api.client'
 import { render, screen } from '../../test-utils'
 import MealPrepDetail from './MealPrepDetail'
@@ -45,7 +54,7 @@ describe('MealPrepDetail', () => {
   })
 
   it('renders skeleton while loading', () => {
-    mockApiClient.mockReturnValue(new Promise(() => {}))
+    mockApiClient.mockReturnValue(new Promise(() => { }))
     render(<MealPrepDetail />)
     expect(screen.getByRole('status', { name: /loading meal prep/i })).toBeInTheDocument()
   })
@@ -96,7 +105,7 @@ describe('MealPrepDetail', () => {
 
   it('calls console.log("edit") when Edit button is pressed', async () => {
     const user = userEvent.setup()
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { })
     mockApiClient.mockResolvedValue(okResponse(makeMealPrep()))
     render(<MealPrepDetail />)
 
@@ -110,7 +119,7 @@ describe('MealPrepDetail', () => {
 
   it('calls console.log("delete") when Delete button is pressed', async () => {
     const user = userEvent.setup()
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { })
     mockApiClient.mockResolvedValue(okResponse(makeMealPrep()))
     render(<MealPrepDetail />)
 

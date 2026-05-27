@@ -17,9 +17,10 @@ function makeMealPrep(id: string) {
   return {
     carbs: null,
     fat: 30,
+    firstTag: { id: 'tag-1', name: 'High-protein' },
     id,
     protein: 100,
-    tags: [{ id: 'tag-1', name: 'High-protein' }],
+    tagCount: 1,
     title: `Meal Prep ${id}`,
   }
 }

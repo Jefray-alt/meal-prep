@@ -5,8 +5,9 @@ export interface MealPrepCardProps {
 export interface MealPrepSummary {
   carbs: null | number
   fat: null | number
+  firstTag: null | { id: string; name: string }
   id: string
   protein: null | number
-  tags: { id: string; name: string }[]
+  tagCount: number
   title: string
 }

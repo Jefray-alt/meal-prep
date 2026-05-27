@@ -6,6 +6,7 @@ import { Link, useParams } from 'react-router'
 import type { MealPrepDetail as MealPrepDetailType } from './MealPrepDetail.types'
 
 import Header from '../../components/Header/Header'
+import MacrosPill from '../../components/MacrosPill/MacrosPill'
 import MealPrepDetailSkeleton from '../../components/MealPrepDetailSkeleton/MealPrepDetailSkeleton'
 import { apiClient } from '../../lib/clients/api/api.client'
 
@@ -129,22 +130,13 @@ export default function MealPrepDetail() {
               {(mealPrep.protein !== null || mealPrep.carbs !== null || mealPrep.fat !== null) && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {mealPrep.protein !== null && (
-                    <span className="flex items-baseline gap-1.5 rounded-lg border border-smoke/15 bg-smoke/8 px-3 py-1.5">
-                      <span className="text-sm font-medium text-bark/90">{mealPrep.protein}g</span>
-                      <span className="text-[9px] tracking-[0.1em] text-smoke/45 uppercase">protein</span>
-                    </span>
+                    <MacrosPill label="protein" value={mealPrep.protein} />
                   )}
                   {mealPrep.carbs !== null && (
-                    <span className="flex items-baseline gap-1.5 rounded-lg border border-smoke/15 bg-smoke/8 px-3 py-1.5">
-                      <span className="text-sm font-medium text-bark/90">{mealPrep.carbs}g</span>
-                      <span className="text-[9px] tracking-[0.1em] text-smoke/45 uppercase">carbs</span>
-                    </span>
+                    <MacrosPill label="carbs" value={mealPrep.carbs} />
                   )}
                   {mealPrep.fat !== null && (
-                    <span className="flex items-baseline gap-1.5 rounded-lg border border-smoke/15 bg-smoke/8 px-3 py-1.5">
-                      <span className="text-sm font-medium text-bark/90">{mealPrep.fat}g</span>
-                      <span className="text-[9px] tracking-[0.1em] text-smoke/45 uppercase">fat</span>
-                    </span>
+                    <MacrosPill label="fat" value={mealPrep.fat} />
                   )}
                 </div>
               )}
