@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router'
 import AuthRoute from './components/AuthRoute/AuthRoute'
 import GuestRoute from './components/GuestRoute/GuestRoute'
 import Create from './pages/Create/Create'
+import Edit from './pages/Edit/Edit'
 import Home from './pages/Home/Home'
 import Login from './pages/Login/Login'
 import MealPrepDetail from './pages/MealPrepDetail/MealPrepDetail'
@@ -38,6 +39,14 @@ export default function App() {
           </AuthRoute>
         }
         path="/meal-preps/:id"
+      />
+      <Route
+        element={
+          <AuthRoute>
+            <Edit />
+          </AuthRoute>
+        }
+        path="/meal-preps/:id/edit"
       />
     </Routes>
   )

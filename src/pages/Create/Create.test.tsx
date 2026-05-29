@@ -36,6 +36,7 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
     'Cook everything well',
   )
   await user.type(screen.getByPlaceholderText('Ingredient name'), 'Chicken')
+  await user.type(screen.getByPlaceholderText('Qty (e.g. 200g)'), '200g')
   await user.click(screen.getByRole('button', { name: '+' }))
   await user.click(screen.getByRole('button', { name: 'Add bulk tag' }))
 }

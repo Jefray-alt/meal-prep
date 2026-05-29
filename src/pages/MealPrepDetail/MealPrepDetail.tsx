@@ -115,7 +115,7 @@ export default function MealPrepDetail() {
                     aria-label={`Edit ${mealPrep.title}`}
                     className="h-auto min-w-0 rounded-full p-2 text-smoke/50 hover:bg-smoke/8 hover:text-smoke/80"
                     isIconOnly
-                    onPress={() => { console.log('edit') }}
+                    onPress={() => { void navigate(`/meal-preps/${id}/edit`) }}
                     variant="ghost"
                   >
                     <Pencil size={15} strokeWidth={1.5} />

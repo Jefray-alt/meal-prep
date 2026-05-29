@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { toast } from '@heroui/react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 
-import type { MealPrepFormData } from '../../components/MealPrepForm/MealPrepForm.types'
-import type { Tag } from '../../components/TagPill/TagPill.types'
+import type { MealPrepFormData, Tag } from '../../components/MealPrepForm/MealPrepForm.types'
+import type { MealPrepDetail } from '../MealPrepDetail/MealPrepDetail.types'
 
 import Header from '../../components/Header/Header'
+import MealPrepDetailSkeleton from '../../components/MealPrepDetailSkeleton/MealPrepDetailSkeleton'
 import MealPrepForm from '../../components/MealPrepForm/MealPrepForm'
 import { apiClient } from '../../lib/clients/api/api.client'
+
+type Status = 'error' | 'loading' | 'not-found' | 'success'
 
 const INITIAL_DATA: MealPrepFormData = {
   carbs: '',
@@ -20,8 +24,10 @@ const INITIAL_DATA: MealPrepFormData = {
 
 const VALIDATABLE_FIELDS: (keyof MealPrepFormData)[] = ['ingredients', 'instructions', 'tags', 'title']
 
-export default function Create() {
+export default function Edit() {
+  const { id = '' } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [status, setStatus] = useState<Status>('loading')
   const [data, setData] = useState<MealPrepFormData>(INITIAL_DATA)
   const [touched, setTouched] = useState<Set<keyof MealPrepFormData>>(new Set())
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
@@ -29,6 +35,31 @@ export default function Create() {
   const [serverError, setServerError] = useState<null | string>(null)
 
   const errors = useMemo(() => validate(data, touched), [data, touched])
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await apiClient(`/meal-preps/${id}`)
+        if (res.status === 404) { setStatus('not-found'); return }
+        if (!res.ok) { setStatus('error'); return }
+        const body = (await res.json()) as MealPrepDetail
+        setData({
+          carbs: body.carbs != null ? String(body.carbs) : '',
+          fat: body.fat != null ? String(body.fat) : '',
+          ingredients: body.ingredients,
+          instructions: body.instructions,
+          protein: body.protein != null ? String(body.protein) : '',
+          tags: body.tags.map((t) => t.name),
+          title: body.title,
+        })
+        setSelectedTags(body.tags)
+        setStatus('success')
+      } catch {
+        setStatus('error')
+      }
+    }
+    void load()
+  }, [id])
 
   const handleChange = (patch: Partial<MealPrepFormData>) => {
     setData((prev) => ({ ...prev, ...patch }))
@@ -64,7 +95,7 @@ export default function Create() {
     setIsSaving(true)
     setServerError(null)
 
-    const res = await apiClient('/meal-preps', {
+    const res = await apiClient(`/meal-preps/${id}`, {
       body: JSON.stringify({
         carbs: parseFloat(data.carbs) || 0,
         fat: parseFloat(data.fat) || 0,
@@ -75,11 +106,12 @@ export default function Create() {
         title: data.title,
       }),
       headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
+      method: 'PATCH',
     })
 
-    if (res.status === 201) {
-      void navigate('/meal-preps')
+    if (res.ok) {
+      toast.success('Meal prep saved')
+      void navigate(`/meal-preps/${id}`)
       return
     }
 
@@ -106,29 +138,44 @@ export default function Create() {
 
       <main className="relative z-10 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl px-6 py-14">
-          <p className="mb-3 text-[10px] tracking-[0.35em] text-ember/50 uppercase">
-            Create your own
-          </p>
-          <h1
-            className="text-5xl font-light italic leading-[1.1] text-bark sm:text-6xl"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            New Meal Prep
-          </h1>
 
-          <MealPrepForm
-            data={data}
-            errors={errors}
-            isSaving={isSaving}
-            onBlur={handleBlur}
-            onCancel={() => { void navigate('/') }}
-            onChange={handleChange}
-            onSave={() => { void handleSave() }}
-            onTagRemove={handleTagRemove}
-            onTagSelect={handleTagSelect}
-            selectedTags={selectedTags}
-            serverError={serverError}
-          />
+          {status === 'loading' && <MealPrepDetailSkeleton />}
+
+          {status === 'not-found' && (
+            <p className="text-sm text-smoke/60" role="alert">Meal prep not found.</p>
+          )}
+
+          {status === 'error' && (
+            <p className="text-sm text-smoke/60" role="alert">Something went wrong. Try refreshing.</p>
+          )}
+
+          {status === 'success' && (
+            <>
+              <p className="mb-3 text-[10px] tracking-[0.35em] text-ember/50 uppercase">
+                Edit your own
+              </p>
+              <h1
+                className="text-5xl font-light italic leading-[1.1] text-bark sm:text-6xl"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                Edit Meal Prep
+              </h1>
+
+              <MealPrepForm
+                data={data}
+                errors={errors}
+                isSaving={isSaving}
+                onBlur={handleBlur}
+                onCancel={() => { void navigate(`/meal-preps/${id}`) }}
+                onChange={handleChange}
+                onSave={() => { void handleSave() }}
+                onTagRemove={handleTagRemove}
+                onTagSelect={handleTagSelect}
+                selectedTags={selectedTags}
+                serverError={serverError}
+              />
+            </>
+          )}
         </div>
       </main>
     </div>

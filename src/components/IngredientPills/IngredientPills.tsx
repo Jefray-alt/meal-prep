@@ -1,4 +1,4 @@
-import { Button, Chip, Input, TextField } from '@heroui/react'
+import { Button, Chip, FieldError, Input, Label, TextField } from '@heroui/react'
 import { useState } from 'react'
 
 import type { IngredientPillsProps } from './IngredientPills.types'
@@ -6,11 +6,17 @@ import type { IngredientPillsProps } from './IngredientPills.types'
 export default function IngredientPills({ error, onChange, value }: IngredientPillsProps) {
   const [draftName, setDraftName] = useState('')
   const [draftQty, setDraftQty] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [qtyError, setQtyError] = useState('')
 
   const add = () => {
     const name = draftName.trim()
-    if (!name) return
-    onChange([...value, { name, quantity: draftQty.trim() }])
+    const qty = draftQty.trim()
+    let valid = true
+    if (!name) { setNameError('Name is required'); valid = false } else { setNameError('') }
+    if (!qty) { setQtyError('Quantity is required'); valid = false } else { setQtyError('') }
+    if (!valid) return
+    onChange([...value, { name, quantity: qty }])
     setDraftName('')
     setDraftQty('')
   }
@@ -50,8 +56,9 @@ export default function IngredientPills({ error, onChange, value }: IngredientPi
         </div>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <TextField aria-label="Ingredient name" className="flex-1" onChange={setDraftName} value={draftName}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <TextField aria-label="Ingredient name" className="flex-1" isInvalid={!!nameError} onChange={(v) => { setDraftName(v); if (v.trim()) setNameError('') }} value={draftName}>
+          <Label className="sr-only">Ingredient name</Label>
           <Input
             fullWidth
             onKeyDown={(e) => {
@@ -62,10 +69,13 @@ export default function IngredientPills({ error, onChange, value }: IngredientPi
             }}
             placeholder="Ingredient name"
           />
+          <FieldError className="mt-1 text-xs">{nameError}</FieldError>
         </TextField>
-        <div className="flex gap-2">
-          <TextField aria-label="Quantity" className="flex-1 sm:w-32 sm:flex-none" onChange={setDraftQty} value={draftQty}>
+        <div className="flex gap-2 sm:items-start">
+          <TextField aria-label="Quantity" className="flex-1 sm:w-32 sm:flex-none" isInvalid={!!qtyError} onChange={(v) => { setDraftQty(v); if (v.trim()) setQtyError('') }} value={draftQty}>
+            <Label className="sr-only">Quantity</Label>
             <Input fullWidth placeholder="Qty (e.g. 200g)" />
+            <FieldError className="mt-1 text-xs">{qtyError}</FieldError>
           </TextField>
           <Button
             className="h-auto shrink-0 px-3 py-1.5 text-sm"

@@ -132,9 +132,10 @@ describe('MealPrepDetail', () => {
     })
   })
 
-  it('calls console.log("edit") when Edit button is pressed', async () => {
+  it('navigates to /meal-preps/:id/edit when Edit button is pressed', async () => {
     const user = userEvent.setup()
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { })
+    const mockNavigate = vi.fn()
+    mockUseNavigate.mockReturnValue(mockNavigate)
     mockApiClient.mockResolvedValue(okResponse(makeMealPrep()))
     render(<MealPrepDetail />)
 
@@ -142,8 +143,7 @@ describe('MealPrepDetail', () => {
       expect(screen.getByRole('button', { name: /edit high-protein chicken bowls/i })).toBeInTheDocument()
     })
     await user.click(screen.getByRole('button', { name: /edit high-protein chicken bowls/i }))
-    expect(consoleSpy).toHaveBeenCalledWith('edit')
-    consoleSpy.mockRestore()
+    expect(mockNavigate).toHaveBeenCalledWith('/meal-preps/test-id/edit')
   })
 
   it('opens DeleteMealPrepModal when Delete button is pressed', async () => {
